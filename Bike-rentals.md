@@ -13,7 +13,7 @@ names(bikedata)
     ## [11] "atemp"      "hum"        "windspeed"  "casual"     "registered"
     ## [16] "cnt"
 
-\#How temperature affects bike count
+# How temperature affects bike count
 
 ``` r
 #Transform temp and atemp to o.temp and o.atemp without division
@@ -24,7 +24,7 @@ bikedata <-
   mutate(actual.hum = hum*100)
 ```
 
-\#Regressing bike count with actual temperature
+# Regressing bike count with actual temperature
 
 ``` r
 #Perform a simple linear regression 
@@ -55,10 +55,10 @@ summary(simple.regress)
 ggplot(bikedata, aes(actual.temp, cnt)) + geom_point(shape=1) + geom_abline(intercept = coef(simple.regress)[1], slope = coef(simple.regress)[2], colour = "red") + ylab('Total bike rental') + xlab('temperature') + labs(title = 'temperature against rental count (model imposed)')
 ```
 
-![](Bike-rentals_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](Bike-rentals_files/figure-gfm/graph-1.png)<!-- -->
 
 ``` r
 plot(simple.regress)
 ```
 
-![](Bike-rentals_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->![](Bike-rentals_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->![](Bike-rentals_files/figure-gfm/unnamed-chunk-5-3.png)<!-- -->![](Bike-rentals_files/figure-gfm/unnamed-chunk-5-4.png)<!-- -->
+![](Bike-rentals_files/figure-gfm/plot-1.png)<!-- -->![](Bike-rentals_files/figure-gfm/plot-2.png)<!-- -->![](Bike-rentals_files/figure-gfm/plot-3.png)<!-- -->![](Bike-rentals_files/figure-gfm/plot-4.png)<!-- -->

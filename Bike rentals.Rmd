@@ -32,7 +32,7 @@ bikedata <-
 
 
 # Regressing bike count with actual temperature
-```{r simple linear model }
+```{r simple linear model for actual temperature against bike count}
 #Perform a simple linear regression 
 actual_temp.simple.regress = (lm(bikedata$cnt ~ bikedata$actual.temp))
 summary(actual_temp.simple.regress)
@@ -40,12 +40,12 @@ summary(actual_temp.simple.regress)
 ```
 
 
-```{r graph}
+```{r scatter for temperature against rental count}
 ggplot(bikedata, aes(actual.temp, cnt)) + geom_point(shape=1) + geom_abline(intercept = coef(actual_temp.simple.regress)[1], slope = coef(actual_temp.simple.regress)[2], colour = "red") + ylab('Total bike rental') + xlab('actual temperature') + labs(title = 'temperature against rental count (model imposed)')
 ```
 
-```{r plot}
-plot(simple.regress)
+```{r plot }
+plot(actual_temp.simple.regress)
 ```
 # How temperature affects casual and registered bikers
 
@@ -63,27 +63,24 @@ summary(registered_temp.regress)
 
 ```
 
-```{r scatter actual temp against number of casual bikers}
 
-ggplot(bikedata, aes(actual.temp, casual)) + geom_point(shape=1) + geom_abline(intercept = coef(casual_temp.regress)[1], slope = coef(casual_temp.regress)[2], colour = "red") + ylab('Casual bike rental') + xlab('actual temperature') + labs(title = 'temperature against  casual rental count (model imposed)')
 
+
+```{r}
+
+ggplot(bikedata) + geom_point(aes(actual.temp, registered), shape=1, color = 'red') + geom_point(aes(actual.temp, casual), shape = 1, color = 'blue') + geom_abline(intercept = coef(registered_temp.regress)[1], slope = coef(registered_temp.regress)[2], colour = "red") + geom_abline(intercept = coef(casual_temp.regress)[1], slope = coef(casual_temp.regress)[2], colour = "blue") + ylab('bike rental count') + xlab('actual temperature') + labs(title = 'temperature against rental count (model imposed)') 
 ```
 
-```{r scatter actual temp against number of registered bikers}
-
-ggplot(bikedata, aes(actual.temp, registered)) + geom_point(shape=1) + geom_abline(intercept = coef(registered_temp.regress)[1], slope = coef(registered_temp.regress)[2], colour = "red") + ylab('registered bike rental') + xlab('actual temperature') + labs(title = 'temperature against  registered rental count (model imposed)')
-
-```
 
 # Feel temperature and bike rental count
-```{r simple linear model }
+```{r simple linear model for feel temperature against bike count}
 #Perform a simple linear regression 
 feeltemp.simple.regress = (lm(bikedata$cnt ~ bikedata$actual.atemp))
 summary(feeltemp.simple.regress)
 
 ```
 
-```{r graph}
+```{r scatter for feel temp against rental count}
 ggplot(bikedata, aes(actual.temp, cnt)) + geom_point(shape=1) + geom_abline(intercept = coef(feeltemp.simple.regress)[1], slope = coef(feeltemp.simple.regress)[2], colour = "red") + ylab('Total bike rental') + xlab('feel temperature') + labs(title = 'feel temperature against rental count (model imposed)')
 ```
 # How feel temperature affects casual and registered bikers
@@ -96,11 +93,6 @@ summary(casual_feeltemp.regress)
 
 ```
 
-```{r scatter feel temp against number of casual bikers}
-
-ggplot(bikedata, aes(actual.atemp, casual)) + geom_point(shape=1) + geom_abline(intercept = coef(casual_feeltemp.regress)[1], slope = coef(casual_feeltemp.regress)[2], colour = "red") + ylab('Casual bike rental') + xlab('feel temperature') + labs(title = 'feel temperature against  casual rental count (model imposed)')
-
-```
 
 ```{r how feel temperature affects registered bikers}
 
@@ -108,16 +100,9 @@ registered_feeltemp.regress = (lm(bikedata$registered ~ bikedata$actual.atemp))
 summary(registered_feeltemp.regress)
 
 ```
-```{r scatter actual temp against number of registered bikers}
 
-ggplot(bikedata, aes(actual.atemp, registered)) + geom_point(shape=1) + geom_abline(intercept = coef(registered_feeltemp.regress)[1], slope = coef(registered_feeltemp.regress)[2], colour = "red") + ylab('registered bike rental') + xlab('feel temperature') + labs(title = 'feel temperature against  registered rental count (model imposed)')
+```{r}
 
-```
-
-```{r difference between actual temperature and feel temperature}
-bikedata <- 
-  bikedata %>% mutate(diff_temp = actual.temp - actual.atemp)
-
-
+ggplot(bikedata) + geom_point(aes(actual.atemp, registered), shape=1, color = 'red') + geom_point(aes(actual.atemp, casual), shape = 1, color = 'blue') + geom_abline(intercept = coef(registered_feeltemp.regress)[1], slope = coef(registered_feeltemp.regress)[2], colour = "red") + geom_abline(intercept = coef(casual_feeltemp.regress)[1], slope = coef(casual_feeltemp.regress)[2], colour = "blue") + ylab('bike rental count') + xlab('actual temperature') + labs(title = 'feel temperature against rental count (model imposed)') 
 ```
 

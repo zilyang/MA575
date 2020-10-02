@@ -68,7 +68,7 @@ summary(registered_temp.regress)
 
 ```{r}
 
-ggplot(bikedata) + geom_point(aes(actual.temp, registered), shape=1, color = 'red') + geom_point(aes(actual.temp, casual), shape = 1, color = 'blue') + geom_abline(intercept = coef(registered_temp.regress)[1], slope = coef(registered_temp.regress)[2], colour = "red") + geom_abline(intercept = coef(casual_temp.regress)[1], slope = coef(casual_temp.regress)[2], colour = "blue") + ylab('bike rental count') + xlab('actual temperature') + labs(title = 'temperature against rental count (model imposed)') 
+ggplot(bikedata, aes(x = actual.temp)) + geom_point(aes(y = registered,  color = "registered"), shape = 1) + geom_point(aes(y = casual,  color = "casual"), shape = 1) + geom_abline(intercept = coef(registered_temp.regress)[1], slope = coef(registered_temp.regress)[2], colour = "blue") +  geom_abline(intercept = coef(casual_temp.regress)[1], slope = coef(casual_temp.regress)[2], colour = "red") + ylab('bike rental count') + xlab('actual temperature') + labs(title = 'temperature against rental count (model imposed)', labels=c("registered", "casual"))
 ```
 
 
@@ -103,6 +103,20 @@ summary(registered_feeltemp.regress)
 
 ```{r}
 
-ggplot(bikedata) + geom_point(aes(actual.atemp, registered), shape=1, color = 'red') + geom_point(aes(actual.atemp, casual), shape = 1, color = 'blue') + geom_abline(intercept = coef(registered_feeltemp.regress)[1], slope = coef(registered_feeltemp.regress)[2], colour = "red") + geom_abline(intercept = coef(casual_feeltemp.regress)[1], slope = coef(casual_feeltemp.regress)[2], colour = "blue") + ylab('bike rental count') + xlab('actual temperature') + labs(title = 'feel temperature against rental count (model imposed)') 
+ggplot(bikedata, aes(x = actual.atemp)) + geom_point(aes(y = registered,  color = "registered"), shape = 1) + geom_point(aes(y = casual,  color = "casual"), shape = 1) + geom_abline(intercept = coef(registered_feeltemp.regress)[1], slope = coef(registered_feeltemp.regress)[2], colour = "blue") +  geom_abline(intercept = coef(casual_feeltemp.regress)[1], slope = coef(casual_feeltemp.regress)[2], colour = "red") + ylab('bike rental count') + xlab('feel temperature') + labs(title = 'feel temperature against rental count (model imposed)', labels=c("registered", "casual")) 
+```
+
+
+# Correlation between variables
+```{r correlation matrix}
+cor(bikedata$actual.atemp, bikedata$cnt)
+cor(bikedata$actual.atemp, bikedata$casual)
+cor(bikedata$actual.atemp, bikedata$registered)
+cor(bikedata$actual.temp, bikedata$cnt)
+cor(bikedata$actual.temp, bikedata$casual)
+cor(bikedata$actual.temp, bikedata$registered)
+cor(bikedata$actual.atemp, bikedata$casual)
+cor(bikedata$actual.atemp, bikedata$actual.temp)
+
 ```
 

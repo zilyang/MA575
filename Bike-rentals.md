@@ -113,7 +113,7 @@ summary(registered_temp.regress)
     ## F-statistic: 300.1 on 1 and 729 DF,  p-value: < 2.2e-16
 
 ``` r
-ggplot(bikedata) + geom_point(aes(actual.temp, registered), shape=1, color = 'red') + geom_point(aes(actual.temp, casual), shape = 1, color = 'blue') + geom_abline(intercept = coef(registered_temp.regress)[1], slope = coef(registered_temp.regress)[2], colour = "red") + geom_abline(intercept = coef(casual_temp.regress)[1], slope = coef(casual_temp.regress)[2], colour = "blue") + ylab('bike rental count') + xlab('actual temperature') + labs(title = 'temperature against rental count (model imposed)') 
+ggplot(bikedata, aes(x = actual.temp)) + geom_point(aes(y = registered,  color = "registered"), shape = 1) + geom_point(aes(y = casual,  color = "casual"), shape = 1) + geom_abline(intercept = coef(registered_temp.regress)[1], slope = coef(registered_temp.regress)[2], colour = "blue") +  geom_abline(intercept = coef(casual_temp.regress)[1], slope = coef(casual_temp.regress)[2], colour = "red") + ylab('bike rental count') + xlab('actual temperature') + labs(title = 'temperature against rental count (model imposed)', labels=c("registered", "casual"))
 ```
 
 ![](Bike-rentals_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
@@ -201,7 +201,57 @@ summary(registered_feeltemp.regress)
     ## F-statistic: 306.7 on 1 and 729 DF,  p-value: < 2.2e-16
 
 ``` r
-ggplot(bikedata) + geom_point(aes(actual.atemp, registered), shape=1, color = 'red') + geom_point(aes(actual.atemp, casual), shape = 1, color = 'blue') + geom_abline(intercept = coef(registered_feeltemp.regress)[1], slope = coef(registered_feeltemp.regress)[2], colour = "red") + geom_abline(intercept = coef(casual_feeltemp.regress)[1], slope = coef(casual_feeltemp.regress)[2], colour = "blue") + ylab('bike rental count') + xlab('actual temperature') + labs(title = 'feel temperature against rental count (model imposed)') 
+ggplot(bikedata, aes(x = actual.atemp)) + geom_point(aes(y = registered,  color = "registered"), shape = 1) + geom_point(aes(y = casual,  color = "casual"), shape = 1) + geom_abline(intercept = coef(registered_feeltemp.regress)[1], slope = coef(registered_feeltemp.regress)[2], colour = "blue") +  geom_abline(intercept = coef(casual_feeltemp.regress)[1], slope = coef(casual_feeltemp.regress)[2], colour = "red") + ylab('bike rental count') + xlab('feel temperature') + labs(title = 'feel temperature against rental count (model imposed)', labels=c("registered", "casual")) 
 ```
 
 ![](Bike-rentals_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+
+# Correlation between variables
+
+``` r
+cor(bikedata$actual.atemp, bikedata$cnt)
+```
+
+    ## [1] 0.6310657
+
+``` r
+cor(bikedata$actual.atemp, bikedata$casual)
+```
+
+    ## [1] 0.5438637
+
+``` r
+cor(bikedata$actual.atemp, bikedata$registered)
+```
+
+    ## [1] 0.5441918
+
+``` r
+cor(bikedata$actual.temp, bikedata$cnt)
+```
+
+    ## [1] 0.627494
+
+``` r
+cor(bikedata$actual.temp, bikedata$casual)
+```
+
+    ## [1] 0.5432847
+
+``` r
+cor(bikedata$actual.temp, bikedata$registered)
+```
+
+    ## [1] 0.540012
+
+``` r
+cor(bikedata$actual.atemp, bikedata$casual)
+```
+
+    ## [1] 0.5438637
+
+``` r
+cor(bikedata$actual.atemp, bikedata$actual.temp)
+```
+
+    ## [1] 0.9917016

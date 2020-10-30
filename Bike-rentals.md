@@ -255,3 +255,217 @@ cor(bikedata$actual.atemp, bikedata$actual.temp)
 ```
 
     ## [1] 0.9917016
+
+# Multiple linear Regression
+
+Use covariates holiday, weekday, weathersit, temp, hum ,windspeed to
+regress total rental bike counts.
+
+First we regress with temperature^2.
+
+``` r
+m.quadls_casual <- lm(bikedata$casual ~ bikedata$actual.temp + I(bikedata$actual.temp^2))
+m.quadls_registered <- lm(bikedata$registered ~ bikedata$actual.temp + I(bikedata$actual.temp^2))
+```
+
+``` r
+ggplot(bikedata, aes(x = actual.temp)) + geom_point(aes(y = registered,  color = "registered"), shape = 1) + geom_point(aes(y = casual,  color = "casual"), shape = 1) +   geom_line(data = fortify(m.quadls_casual), aes(x = bikedata$actual.temp, y = .fitted), color = "red") + geom_line(data = fortify(m.quadls_registered), aes(x = bikedata$actual.temp, y = .fitted), color = "blue") + labs(title = "Scatter plot with fitted quadratic model")
+```
+
+![](Bike-rentals_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+
+``` r
+StanResQLS_casual <- rstandard(m.quadls_casual)
+ggplot(bikedata, aes(x = actual.temp, y=StanResQLS_casual)) + geom_point(shape = 1) + geom_hline(yintercept = -2) + geom_hline(yintercept = 2) + ggtitle("Standarized Residuals")
+```
+
+![](Bike-rentals_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+``` r
+StanResQLS_registered <- rstandard(m.quadls_registered)
+ggplot(bikedata, aes(x = actual.temp, y=StanResQLS_registered)) + geom_point(shape = 1) + geom_hline(yintercept = -2) + geom_hline(yintercept = 2)+ ggtitle("Standarized Residuals")
+```
+
+![](Bike-rentals_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+Most data points are within two standard deviations within the
+prediction. This means that the model is a good fit.
+
+``` r
+summary(m.quadls_casual)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = bikedata$casual ~ bikedata$actual.temp + I(bikedata$actual.temp^2))
+    ## 
+    ## Residuals:
+    ##     Min      1Q  Median      3Q     Max 
+    ## -1020.0  -368.4  -116.3   179.1  2420.5 
+    ## 
+    ## Coefficients:
+    ##                            Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)               -844.3089   151.3762  -5.578 3.44e-08 ***
+    ## bikedata$actual.temp       128.6265    16.2712   7.905 9.91e-15 ***
+    ## I(bikedata$actual.temp^2)   -1.9626     0.3986  -4.924 1.05e-06 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 567.9 on 728 degrees of freedom
+    ## Multiple R-squared:  0.3179, Adjusted R-squared:  0.316 
+    ## F-statistic: 169.6 on 2 and 728 DF,  p-value: < 2.2e-16
+
+``` r
+summary(m.quadls_registered)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = bikedata$registered ~ bikedata$actual.temp + I(bikedata$actual.temp^2))
+    ## 
+    ## Residuals:
+    ##     Min      1Q  Median      3Q     Max 
+    ## -3745.0  -947.5  -117.2   971.2  3000.2 
+    ## 
+    ## Coefficients:
+    ##                             Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)               -1057.6468   336.4358  -3.144  0.00174 ** 
+    ## bikedata$actual.temp        393.4938    36.1629  10.881  < 2e-16 ***
+    ## I(bikedata$actual.temp^2)    -6.9934     0.8859  -7.895 1.07e-14 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 1262 on 728 degrees of freedom
+    ## Multiple R-squared:  0.3475, Adjusted R-squared:  0.3457 
+    ## F-statistic: 193.8 on 2 and 728 DF,  p-value: < 2.2e-16
+
+``` r
+bikedata$season <- as.factor(bikedata$season)
+bikedata$holiday <- as.factor(bikedata$holiday)
+bikedata$weathersit <- as.factor(bikedata$weathersit)
+bikedata$workingday <- as.factor(bikedata$workingday)
+bikedata$yr <- as.factor(bikedata$yr)
+```
+
+``` r
+m.mls_casual <- lm(bikedata$casual ~ bikedata$holiday + bikedata$weathersit + bikedata$workingday +  bikedata$actual.hum + bikedata$actual.temp+ bikedata$actual.windspeed)
+
+summary(m.mls_casual)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = bikedata$casual ~ bikedata$holiday + bikedata$weathersit + 
+    ##     bikedata$workingday + bikedata$actual.hum + bikedata$actual.temp + 
+    ##     bikedata$actual.windspeed)
+    ## 
+    ## Residuals:
+    ##      Min       1Q   Median       3Q      Max 
+    ## -1344.11  -217.48   -17.62   162.03  1782.49 
+    ## 
+    ## Coefficients:
+    ##                           Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)                974.483    110.161   8.846  < 2e-16 ***
+    ## bikedata$holiday1         -312.884     94.911  -3.297  0.00103 ** 
+    ## bikedata$weathersit2       -56.701     40.663  -1.394  0.16362    
+    ## bikedata$weathersit3      -321.274    104.135  -3.085  0.00211 ** 
+    ## bikedata$workingday1      -829.014     34.206 -24.236  < 2e-16 ***
+    ## bikedata$actual.hum         -5.951      1.452  -4.099 4.62e-05 ***
+    ## bikedata$actual.temp        51.258      2.137  23.985  < 2e-16 ***
+    ## bikedata$actual.windspeed  -14.832      3.169  -4.681 3.41e-06 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 414.5 on 723 degrees of freedom
+    ## Multiple R-squared:  0.6391, Adjusted R-squared:  0.6356 
+    ## F-statistic: 182.9 on 7 and 723 DF,  p-value: < 2.2e-16
+
+``` r
+m.mls_registered <- lm(bikedata$registered ~ bikedata$holiday + bikedata$weathersit + bikedata$workingday + bikedata$yr + bikedata$actual.hum + bikedata$actual.temp+ bikedata$actual.windspeed)
+
+summary(m.mls_registered)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = bikedata$registered ~ bikedata$holiday + bikedata$weathersit + 
+    ##     bikedata$workingday + bikedata$yr + bikedata$actual.hum + 
+    ##     bikedata$actual.temp + bikedata$actual.windspeed)
+    ## 
+    ## Residuals:
+    ##      Min       1Q   Median       3Q      Max 
+    ## -3068.28  -514.58    10.66   569.09  1928.73 
+    ## 
+    ## Coefficients:
+    ##                            Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)                1029.794    213.323   4.827 1.69e-06 ***
+    ## bikedata$holiday1          -332.676    179.378  -1.855   0.0641 .  
+    ## bikedata$weathersit2       -399.385     77.020  -5.185 2.80e-07 ***
+    ## bikedata$weathersit3      -1492.762    196.813  -7.585 1.03e-13 ***
+    ## bikedata$workingday1        941.423     64.646  14.563  < 2e-16 ***
+    ## bikedata$yr1               1736.294     58.617  29.621  < 2e-16 ***
+    ## bikedata$actual.hum          -2.618      2.765  -0.947   0.3441    
+    ## bikedata$actual.temp         95.618      4.048  23.619  < 2e-16 ***
+    ## bikedata$actual.windspeed   -37.389      5.992  -6.239 7.48e-10 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 783.3 on 722 degrees of freedom
+    ## Multiple R-squared:  0.7507, Adjusted R-squared:  0.7479 
+    ## F-statistic: 271.8 on 8 and 722 DF,  p-value: < 2.2e-16
+
+``` r
+data <- data.frame(bikedata$casual, bikedata$holiday, bikedata$weathersit, bikedata$workingday, bikedata$actual.hum, bikedata$actual.temp, bikedata$actual.windspeed)
+
+ggpairs(data, lower = list(continuous = wrap("points", alpha = 0.3, size= 0.1)))
+```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+![](Bike-rentals_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+``` r
+data <- data.frame(bikedata$registered, bikedata$holiday, bikedata$weathersit, bikedata$workingday, bikedata$actual.hum, bikedata$actual.temp, bikedata$actual.windspeed)
+
+ggpairs(data, lower = list(continuous = wrap("points", alpha = 0.3, size= 0.1)))
+```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+![](Bike-rentals_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+``` r
+StanResMLS_registered <- rstandard(m.mls_registered)
+ggplot(bikedata, aes(x = actual.temp, y=StanResMLS_registered)) + geom_point(shape = 1) + geom_hline(yintercept = -2) + geom_hline(yintercept = 2)+ ggtitle("Standarized Residuals")
+```
+
+![](Bike-rentals_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+``` r
+StanResMLS_casual <- rstandard(m.mls_casual)
+ggplot(bikedata, aes(x = actual.temp, y=StanResMLS_casual)) + geom_point(shape = 1) + geom_hline(yintercept = -2) + geom_hline(yintercept = 2)+ ggtitle("Standarized Residuals")
+```
+
+![](Bike-rentals_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->

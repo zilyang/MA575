@@ -9,6 +9,7 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(ggplot2)
+library(GGally)
 ```
 
 ```{r read file}
@@ -108,6 +109,7 @@ ggplot(bikedata, aes(x = actual.atemp)) + geom_point(aes(y = registered,  color 
 
 
 # Correlation between variables
+
 ```{r correlation matrix}
 cor(bikedata$actual.atemp, bikedata$cnt)
 cor(bikedata$actual.atemp, bikedata$casual)
@@ -118,5 +120,79 @@ cor(bikedata$actual.temp, bikedata$registered)
 cor(bikedata$actual.atemp, bikedata$casual)
 cor(bikedata$actual.atemp, bikedata$actual.temp)
 
+```
+
+# Multiple linear Regression
+
+Use covariates holiday, weekday, weathersit, temp, hum ,windspeed to regress total rental bike counts. 
+
+First we regress with temperature^2. 
+
+```{r higher power regression with temperature}
+m.quadls_casual <- lm(bikedata$casual ~ bikedata$actual.temp + I(bikedata$actual.temp^2))
+m.quadls_registered <- lm(bikedata$registered ~ bikedata$actual.temp + I(bikedata$actual.temp^2))
+```
+
+
+```{r}
+ggplot(bikedata, aes(x = actual.temp)) + geom_point(aes(y = registered,  color = "registered"), shape = 1) + geom_point(aes(y = casual,  color = "casual"), shape = 1) +   geom_line(data = fortify(m.quadls_casual), aes(x = bikedata$actual.temp, y = .fitted), color = "red") + geom_line(data = fortify(m.quadls_registered), aes(x = bikedata$actual.temp, y = .fitted), color = "blue") + labs(title = "Scatter plot with fitted quadratic model")
+```
+```{r}
+StanResQLS_casual <- rstandard(m.quadls_casual)
+ggplot(bikedata, aes(x = actual.temp, y=StanResQLS_casual)) + geom_point(shape = 1) + geom_hline(yintercept = -2) + geom_hline(yintercept = 2) + ggtitle("Standarized Residuals")
+```
+```{r}
+StanResQLS_registered <- rstandard(m.quadls_registered)
+ggplot(bikedata, aes(x = actual.temp, y=StanResQLS_registered)) + geom_point(shape = 1) + geom_hline(yintercept = -2) + geom_hline(yintercept = 2)+ ggtitle("Standarized Residuals")
+```
+
+Most data points are within two standard deviations within the prediction. This means that the model is a good fit. 
+
+```{r}
+summary(m.quadls_casual)
+```
+
+```{r}
+summary(m.quadls_registered)
+```
+
+```{r}
+bikedata$season <- as.factor(bikedata$season)
+bikedata$holiday <- as.factor(bikedata$holiday)
+bikedata$weathersit <- as.factor(bikedata$weathersit)
+bikedata$workingday <- as.factor(bikedata$workingday)
+bikedata$yr <- as.factor(bikedata$yr)
+```
+
+```{r}
+m.mls_casual <- lm(bikedata$casual ~ bikedata$holiday + bikedata$weathersit + bikedata$workingday +  bikedata$actual.hum + bikedata$actual.temp+ bikedata$actual.windspeed)
+
+summary(m.mls_casual)
+```
+```{r}
+m.mls_registered <- lm(bikedata$registered ~ bikedata$holiday + bikedata$weathersit + bikedata$workingday + bikedata$yr + bikedata$actual.hum + bikedata$actual.temp+ bikedata$actual.windspeed)
+
+summary(m.mls_registered)
+```
+
+```{r}
+data <- data.frame(bikedata$casual, bikedata$holiday, bikedata$weathersit, bikedata$workingday, bikedata$actual.hum, bikedata$actual.temp, bikedata$actual.windspeed)
+
+ggpairs(data, lower = list(continuous = wrap("points", alpha = 0.3, size= 0.1)))
+```
+
+```{r}
+data <- data.frame(bikedata$registered, bikedata$holiday, bikedata$weathersit, bikedata$workingday, bikedata$actual.hum, bikedata$actual.temp, bikedata$actual.windspeed)
+
+ggpairs(data, lower = list(continuous = wrap("points", alpha = 0.3, size= 0.1)))
+```
+```{r}
+StanResMLS_registered <- rstandard(m.mls_registered)
+ggplot(bikedata, aes(x = actual.temp, y=StanResMLS_registered)) + geom_point(shape = 1) + geom_hline(yintercept = -2) + geom_hline(yintercept = 2)+ ggtitle("Standarized Residuals")
+```
+
+```{r}
+StanResMLS_casual <- rstandard(m.mls_casual)
+ggplot(bikedata, aes(x = actual.temp, y=StanResMLS_casual)) + geom_point(shape = 1) + geom_hline(yintercept = -2) + geom_hline(yintercept = 2)+ ggtitle("Standarized Residuals")
 ```
 

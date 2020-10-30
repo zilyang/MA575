@@ -276,14 +276,14 @@ ggplot(bikedata, aes(x = actual.temp)) + geom_point(aes(y = registered,  color =
 
 ``` r
 StanResQLS_casual <- rstandard(m.quadls_casual)
-ggplot(bikedata, aes(x = actual.temp, y=StanResQLS_casual)) + geom_point(shape = 1) + geom_hline(yintercept = -2) + geom_hline(yintercept = 2) + ggtitle("Standarized Residuals")
+ggplot(bikedata, aes(x = casual, y=StanResQLS_casual)) + geom_point(shape = 1) + geom_hline(yintercept = -2) + geom_hline(yintercept = 2) + ggtitle("Standarized Residuals")
 ```
 
 ![](Bike-rentals_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 ``` r
 StanResQLS_registered <- rstandard(m.quadls_registered)
-ggplot(bikedata, aes(x = actual.temp, y=StanResQLS_registered)) + geom_point(shape = 1) + geom_hline(yintercept = -2) + geom_hline(yintercept = 2)+ ggtitle("Standarized Residuals")
+ggplot(bikedata, aes(x = registered, y=StanResQLS_registered)) + geom_point(shape = 1) + geom_hline(yintercept = -2) + geom_hline(yintercept = 2)+ ggtitle("Standarized Residuals")
 ```
 
 ![](Bike-rentals_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
@@ -458,14 +458,14 @@ ggpairs(data, lower = list(continuous = wrap("points", alpha = 0.3, size= 0.1)))
 
 ``` r
 StanResMLS_registered <- rstandard(m.mls_registered)
-ggplot(bikedata, aes(x = actual.temp, y=StanResMLS_registered)) + geom_point(shape = 1) + geom_hline(yintercept = -2) + geom_hline(yintercept = 2)+ ggtitle("Standarized Residuals")
+ggplot(bikedata, aes(x = registered, y=StanResMLS_registered)) + geom_point(shape = 1) + geom_hline(yintercept = -2) + geom_hline(yintercept = 2)+ ggtitle("Standarized Residuals")
 ```
 
 ![](Bike-rentals_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 ``` r
 StanResMLS_casual <- rstandard(m.mls_casual)
-ggplot(bikedata, aes(x = actual.temp, y=StanResMLS_casual)) + geom_point(shape = 1) + geom_hline(yintercept = -2) + geom_hline(yintercept = 2)+ ggtitle("Standarized Residuals")
+ggplot(bikedata, aes(x = casual, y=StanResMLS_casual)) + geom_point(shape = 1) + geom_hline(yintercept = -2) + geom_hline(yintercept = 2)+ ggtitle("Standarized Residuals")
 ```
 
 ![](Bike-rentals_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->

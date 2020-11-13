@@ -31,7 +31,19 @@ bikedata$holiday <- as.factor(bikedata$holiday)
 bikedata$weathersit <- as.factor(bikedata$weathersit)
 bikedata$workingday <- as.factor(bikedata$workingday)
 bikedata$yr <- as.factor(bikedata$yr)
+
+bikedata <- bikedata %>% mutate(weekend = if_else(weekday == 0|weekday==6,1,if_else(weekday ==1|weekday==2|weekday==3|weekday==4|weekday==5,0,NA_real_) ))
+
+
+
 ```
+
+
+
+```{r}
+bikedata$weekend <- as.factor(bikedata$weekend)
+```
+
 
 
 ```{r seperate data}
@@ -90,6 +102,8 @@ ggplot(training_d,aes(x=weekday,y=casual,fill=season))+geom_col()
 ggplot(training_d,aes(x=weekday,y=registered,fill=season))+geom_col()
 ```
 
+There seems to be a difference in bike counts for both registered and casual between weekends and not weekends so we generate a new one hot variable. 0 when it is weekday 1 to 5 and 1 if it is 0 or 6. 
+
 
 # Weather situation 
 
@@ -137,9 +151,9 @@ ggplot(workingdayC_byHoliday) + geom_col(aes(x=holiday, y=n))
 
 
 ```{r}
-workingdayC_byWeekday <- training_d %>% count(workingday, weekday)
+workingdayC_byWeekday <- training_d %>% count(workingday, weekend)
 workingdayC_byWeekday <- workingdayC_byWeekday %>% filter(workingday ==1)
-ggplot(workingdayC_byWeekday) + geom_col(aes(x=weekday, y=n))
+ggplot(workingdayC_byWeekday) + geom_col(aes(x=weekend, y=n))
 ```
 
 We will exclude holiday and weekday from out model because the bar plot of holiday against working day count shows that all working days are not a holiday therefore workingday already encaptured the information of holidays. We will also exclude weekday from our model because the count of workingday is 0 on saturday and sunday therefore workingday also has already encaptured the information of weekday. 
@@ -179,7 +193,7 @@ ggplot(training_d, aes(x = actual.windspeed)) + geom_point(aes(y = registered,  
 
 # Model
 ```{r}
-model.casual <- lm(casual ~ actual.windspeed + actual.temp + I(actual.temp^2) + workingday +  weathersit, data = training_d)
+model.casual <- lm(casual ~ actual.windspeed + actual.temp + I(actual.temp^2) + weathersit + workingday, data = training_d)
 
 model.registered <- lm(registered ~ actual.windspeed + actual.temp + I(actual.temp^2) + workingday +  weathersit, data = training_d)
 ```
@@ -232,12 +246,14 @@ ggtitle("Standarized Residuals MLS Plot (Fitted) for registered bikers")
 
 ```{r}
 Fitted_casual = fitted(model.casual)
-ggplot() +
+ResFittedMLS_casual <- ggplot() +
 geom_point(aes(x=Fitted_casual, y=StanRes.casual, color = "MLS"), size = 1) +
 geom_hline(yintercept=2,color='blue') + geom_hline(yintercept=-2, color='blue') +
 scale_color_manual(name = element_blank(), labels = c("MLS"), values = c("blue")) +
 labs(y = "Standarized Residual") + labs(x = "Fitted value") +
 ggtitle("Standarized Residuals MLS Plot (Fitted) for casual bikers")
+
+ResFittedMLS_casual
 ```
 
 ```{r}
@@ -307,18 +323,18 @@ labs(y = "Standarized Residual") + ggtitle("Standarized Residuals WLS Plot for r
 FittedWLS_casual = fitted(wls.casual)
 ggplot() +
 geom_point(aes(x=FittedWLS_casual, y=StanResWLS.casual, color = "WLS"), size = 1) +
-geom_hline(yintercept=2,color='blue') + geom_hline(yintercept=-2, color='blue') +
-scale_color_manual(name = element_blank(), labels = c("WLS"), values = c("blue")) +
+geom_hline(yintercept=2,color='blue') + geom_hline(yintercept=-2, color='blue') + geom_point(aes(x=Fitted_casual, y=StanRes.casual, color = "MLS"), size = 1) +
+scale_color_manual(name = element_blank(), labels = c("WLS", "MLS"), values = c("blue", "red")) +
 labs(y = "Standarized Residual") + labs(x = "Fitted value") +
-ggtitle("Standarized Residuals WLS Plot (Fitted) for casual bikers")
+ggtitle("Standarized Residuals WLS Plot (Fitted) for casual bikers") 
 ```
 
 ```{r}
 FittedWLS_registered = fitted(wls.registered)
 ggplot() +
 geom_point(aes(x=FittedWLS_registered, y=StanResWLS.registered, color = "WLS"), size = 1) +
-geom_hline(yintercept=2,color='blue') + geom_hline(yintercept=-2, color='blue') +
-scale_color_manual(name = element_blank(), labels = c("WLS"), values = c("blue")) +
+geom_hline(yintercept=2,color='blue') + geom_hline(yintercept=-2, color='blue') + geom_point(aes(x=Fitted_registered, y=StanRes.registered, color = "MLS"), size = 1) +
+scale_color_manual(name = element_blank(), labels = c("WLS", "MLS"), values = c("blue", "red")) +
 labs(y = "Standarized Residual") + labs(x = "Fitted value") +
 ggtitle("Standarized Residuals WLS Plot (Fitted) for registered bikers")
 ```
@@ -400,9 +416,9 @@ ggtitle("Validation Registered vs Prediction")
 ggplot(data = validate_d, aes(x = instant)) +
 geom_line(aes(y = casual, color = "GroundCO")) +
 geom_line(aes(y = prediction_casual, color="Prediction"), linetype="twodash") +
-scale_color_manual(name = element_blank(), labels = c("casual","Prediction"),
+scale_color_manual(name = element_blank(), labels = c("registered","Prediction"),
 values = c("darkred", "steelblue")) + labs(y = "") +
-ggtitle("Validation")
+ggtitle("Validation") 
 ```
 
 ```{r}

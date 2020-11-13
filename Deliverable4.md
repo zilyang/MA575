@@ -26,6 +26,12 @@ bikedata$holiday <- as.factor(bikedata$holiday)
 bikedata$weathersit <- as.factor(bikedata$weathersit)
 bikedata$workingday <- as.factor(bikedata$workingday)
 bikedata$yr <- as.factor(bikedata$yr)
+
+bikedata <- bikedata %>% mutate(weekend = if_else(weekday == 0|weekday==6,1,if_else(weekday ==1|weekday==2|weekday==3|weekday==4|weekday==5,0,NA_real_) ))
+```
+
+``` r
+bikedata$weekend <- as.factor(bikedata$weekend)
 ```
 
 ``` r
@@ -49,13 +55,13 @@ seperately.
 ggplot(training_d,aes(x=season,y=casual))+geom_col()
 ```
 
-![](Deliverable4_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
+![](Deliverable4_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
 ``` r
 ggplot(training_d,aes(x=season,y=registered))+geom_col()
 ```
 
-![](Deliverable4_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+![](Deliverable4_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
 The graphs show that for both casual and registered bikers, there are
 the most rental counts during austumn season and the least during the
@@ -70,13 +76,13 @@ think that we should fit different models for registered and casual.
 ggplot(training_d,aes(x=holiday,y=casual,fill=season))+geom_col()
 ```
 
-![](Deliverable4_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+![](Deliverable4_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 ``` r
 ggplot(training_d,aes(x=holiday,y=registered,fill=season))+geom_col()
 ```
 
-![](Deliverable4_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](Deliverable4_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 # Working day
 
@@ -84,13 +90,13 @@ ggplot(training_d,aes(x=holiday,y=registered,fill=season))+geom_col()
 ggplot(training_d,aes(x=workingday,y=casual,fill=season))+geom_col()
 ```
 
-![](Deliverable4_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](Deliverable4_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ``` r
 ggplot(training_d,aes(x=workingday,y=registered,fill=season))+geom_col()
 ```
 
-![](Deliverable4_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](Deliverable4_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 # Weekday
 
@@ -98,13 +104,17 @@ ggplot(training_d,aes(x=workingday,y=registered,fill=season))+geom_col()
 ggplot(training_d,aes(x=weekday,y=casual,fill=season))+geom_col()
 ```
 
-![](Deliverable4_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](Deliverable4_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 ``` r
 ggplot(training_d,aes(x=weekday,y=registered,fill=season))+geom_col()
 ```
 
-![](Deliverable4_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](Deliverable4_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+There seems to be a difference in bike counts for both registered and
+casual between weekends and not weekends so we generate a new one hot
+variable. 0 when it is weekday 1 to 5 and 1 if it is 0 or 6.
 
 # Weather situation
 
@@ -112,13 +122,13 @@ ggplot(training_d,aes(x=weekday,y=registered,fill=season))+geom_col()
 ggplot(training_d,aes(x=weathersit,y=casual,fill=season))+geom_col()
 ```
 
-![](Deliverable4_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](Deliverable4_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
 ``` r
 ggplot(training_d,aes(x=weathersit,y=registered,fill=season))+geom_col()
 ```
 
-![](Deliverable4_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](Deliverable4_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 # correlation of continuous variables with rental count
 
@@ -130,7 +140,7 @@ data = data%>% rename( casual = training_d.casual, humidity= training_d.actual.h
 ggpairs(data, lower = list(continuous = wrap("points", alpha = 0.3, size= 0.7)))
 ```
 
-![](Deliverable4_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](Deliverable4_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 ``` r
 data <- data.frame(training_d$registered, training_d$actual.hum, training_d$actual.temp, training_d$actual.windspeed, training_d$actual.atemp)
@@ -140,7 +150,7 @@ data = data%>% rename( registered = training_d.registered, humidity= training_d.
 ggpairs(data, lower = list(continuous = wrap("points", alpha = 0.3, size= 0.7)))
 ```
 
-![](Deliverable4_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](Deliverable4_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 The scatter correlation suggests that feel temperature and actual
 temperature are highly correlated because the scatter plot of
@@ -169,15 +179,15 @@ workingdayC_byHoliday <- workingdayC_byHoliday %>% filter(workingday ==1)
 ggplot(workingdayC_byHoliday) + geom_col(aes(x=holiday, y=n))
 ```
 
-![](Deliverable4_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](Deliverable4_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
 
 ``` r
-workingdayC_byWeekday <- training_d %>% count(workingday, weekday)
+workingdayC_byWeekday <- training_d %>% count(workingday, weekend)
 workingdayC_byWeekday <- workingdayC_byWeekday %>% filter(workingday ==1)
-ggplot(workingdayC_byWeekday) + geom_col(aes(x=weekday, y=n))
+ggplot(workingdayC_byWeekday) + geom_col(aes(x=weekend, y=n))
 ```
 
-![](Deliverable4_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](Deliverable4_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 We will exclude holiday and weekday from out model because the bar plot
 of holiday against working day count shows that all working days are not
@@ -192,7 +202,7 @@ already encaptured the information of weekday.
 ggplot(training_d,aes(x=season,y=actual.temp))+geom_boxplot()
 ```
 
-![](Deliverable4_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](Deliverable4_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 The box plot of season against temperature suggests that there is a
 correlation between seasons and temperature. Autumn has the highest
@@ -210,7 +220,7 @@ m.quadls_registered <- lm(training_d$registered ~ training_d$actual.temp + I(tra
 ggplot(training_d, aes(x = actual.temp)) + geom_point(aes(y = registered,  color = "registered"), shape = 1) + geom_point(aes(y = casual,  color = "casual"), shape = 1) +   geom_line(data = fortify(m.quadls_casual), aes(x = training_d$actual.temp, y = .fitted), color = "red") + geom_line(data = fortify(m.quadls_registered), aes(x = training_d$actual.temp, y = .fitted), color = "blue") + labs(title = "Scatter plot with fitted quadratic model")
 ```
 
-![](Deliverable4_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](Deliverable4_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
 Therefore we conclude that we should include a quadratic term on
 temperature.
@@ -226,12 +236,12 @@ m.lin_registered <- lm(training_d$registered ~ training_d$actual.windspeed)
 ggplot(training_d, aes(x = actual.windspeed)) + geom_point(aes(y = registered,  color = "registered"), shape = 1) + geom_point(aes(y = casual,  color = "casual"), shape = 1) +   geom_line(data = fortify(m.lin_casual), aes(x = training_d$actual.windspeed, y = .fitted), color = "red") + geom_line(data = fortify(m.lin_registered), aes(x = training_d$actual.windspeed, y = .fitted), color = "blue") + labs(title = "Scatter plot with fitted quadratic model")
 ```
 
-![](Deliverable4_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](Deliverable4_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
 # Model
 
 ``` r
-model.casual <- lm(casual ~ actual.windspeed + actual.temp + I(actual.temp^2) + workingday +  weathersit, data = training_d)
+model.casual <- lm(casual ~ actual.windspeed + actual.temp + I(actual.temp^2) + weathersit + workingday, data = training_d)
 
 model.registered <- lm(registered ~ actual.windspeed + actual.temp + I(actual.temp^2) + workingday +  weathersit, data = training_d)
 ```
@@ -243,7 +253,7 @@ summary(model.casual)
     ## 
     ## Call:
     ## lm(formula = casual ~ actual.windspeed + actual.temp + I(actual.temp^2) + 
-    ##     workingday + weathersit, data = training_d)
+    ##     weathersit + workingday, data = training_d)
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
@@ -255,9 +265,9 @@ summary(model.casual)
     ## actual.windspeed  -11.5868     3.0496  -3.799  0.00017 ***
     ## actual.temp       103.1244    11.3999   9.046  < 2e-16 ***
     ## I(actual.temp^2)   -1.5666     0.2857  -5.483 7.92e-08 ***
-    ## workingday1      -653.7917    33.5393 -19.493  < 2e-16 ***
     ## weathersit2      -159.5405    33.7533  -4.727 3.29e-06 ***
     ## weathersit3      -441.5134    80.6011  -5.478 8.13e-08 ***
+    ## workingday1      -653.7917    33.5393 -19.493  < 2e-16 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
@@ -317,7 +327,7 @@ scale_color_manual(name = element_blank(), labels = c("MLS"), values = c("blue")
 labs(y = "Standarized Residual") + ggtitle("Standarized Residuals MLS Plot for casual bikers")
 ```
 
-![](Deliverable4_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+![](Deliverable4_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
 
 ``` r
 ggplot() +
@@ -327,7 +337,7 @@ scale_color_manual(name = element_blank(), labels = c("MLS"), values = c("blue")
 labs(y = "Standarized Residual") + ggtitle("Standarized Residuals MLS Plot for registered bikers")
 ```
 
-![](Deliverable4_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
+![](Deliverable4_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
 
 ``` r
 Fitted_registered = fitted(model.registered)
@@ -339,19 +349,21 @@ labs(y = "Standarized Residual") + labs(x = "Fitted value") +
 ggtitle("Standarized Residuals MLS Plot (Fitted) for registered bikers")
 ```
 
-![](Deliverable4_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
+![](Deliverable4_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
 
 ``` r
 Fitted_casual = fitted(model.casual)
-ggplot() +
+ResFittedMLS_casual <- ggplot() +
 geom_point(aes(x=Fitted_casual, y=StanRes.casual, color = "MLS"), size = 1) +
 geom_hline(yintercept=2,color='blue') + geom_hline(yintercept=-2, color='blue') +
 scale_color_manual(name = element_blank(), labels = c("MLS"), values = c("blue")) +
 labs(y = "Standarized Residual") + labs(x = "Fitted value") +
 ggtitle("Standarized Residuals MLS Plot (Fitted) for casual bikers")
+
+ResFittedMLS_casual
 ```
 
-![](Deliverable4_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
+![](Deliverable4_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
 
 ``` r
 p <- ggplot(data.frame(StanRes.casual), aes(sample = StanRes.casual)) +
@@ -359,7 +371,7 @@ ggtitle("QQ MLS Plot for casual bikers")
 p + stat_qq() + stat_qq_line()
 ```
 
-![](Deliverable4_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
+![](Deliverable4_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
 
 ``` r
 p <- ggplot(data.frame(StanRes.registered), aes(sample = StanRes.registered)) +
@@ -367,7 +379,7 @@ ggtitle("QQ MLS Plot for registered bikers")
 p + stat_qq() + stat_qq_line()
 ```
 
-![](Deliverable4_files/figure-gfm/unnamed-chunk-28-1.png)<!-- --> The
+![](Deliverable4_files/figure-gfm/unnamed-chunk-29-1.png)<!-- --> The
 fitted residual plot and the residual plot suggest that there are
 extreme outliers in the casual model and that the residual for both
 models are not evenly distributed around 0, therefore suggesting that
@@ -470,7 +482,7 @@ scale_color_manual(name = element_blank(), labels = c("WLS"), values = c("blue")
 labs(y = "Standarized Residual") + ggtitle("Standarized Residuals WLS Plot for casual bikers")
 ```
 
-![](Deliverable4_files/figure-gfm/unnamed-chunk-32-1.png)<!-- -->
+![](Deliverable4_files/figure-gfm/unnamed-chunk-33-1.png)<!-- -->
 
 ``` r
 ggplot() +
@@ -480,31 +492,31 @@ scale_color_manual(name = element_blank(), labels = c("WLS"), values = c("blue")
 labs(y = "Standarized Residual") + ggtitle("Standarized Residuals WLS Plot for registeredl bikers")
 ```
 
-![](Deliverable4_files/figure-gfm/unnamed-chunk-33-1.png)<!-- -->
+![](Deliverable4_files/figure-gfm/unnamed-chunk-34-1.png)<!-- -->
 
 ``` r
 FittedWLS_casual = fitted(wls.casual)
 ggplot() +
 geom_point(aes(x=FittedWLS_casual, y=StanResWLS.casual, color = "WLS"), size = 1) +
-geom_hline(yintercept=2,color='blue') + geom_hline(yintercept=-2, color='blue') +
-scale_color_manual(name = element_blank(), labels = c("WLS"), values = c("blue")) +
+geom_hline(yintercept=2,color='blue') + geom_hline(yintercept=-2, color='blue') + geom_point(aes(x=Fitted_casual, y=StanRes.casual, color = "MLS"), size = 1) +
+scale_color_manual(name = element_blank(), labels = c("WLS", "MLS"), values = c("blue", "red")) +
 labs(y = "Standarized Residual") + labs(x = "Fitted value") +
-ggtitle("Standarized Residuals WLS Plot (Fitted) for casual bikers")
+ggtitle("Standarized Residuals WLS Plot (Fitted) for casual bikers") 
 ```
 
-![](Deliverable4_files/figure-gfm/unnamed-chunk-34-1.png)<!-- -->
+![](Deliverable4_files/figure-gfm/unnamed-chunk-35-1.png)<!-- -->
 
 ``` r
 FittedWLS_registered = fitted(wls.registered)
 ggplot() +
 geom_point(aes(x=FittedWLS_registered, y=StanResWLS.registered, color = "WLS"), size = 1) +
-geom_hline(yintercept=2,color='blue') + geom_hline(yintercept=-2, color='blue') +
-scale_color_manual(name = element_blank(), labels = c("WLS"), values = c("blue")) +
+geom_hline(yintercept=2,color='blue') + geom_hline(yintercept=-2, color='blue') + geom_point(aes(x=Fitted_registered, y=StanRes.registered, color = "MLS"), size = 1) +
+scale_color_manual(name = element_blank(), labels = c("WLS", "MLS"), values = c("blue", "red")) +
 labs(y = "Standarized Residual") + labs(x = "Fitted value") +
 ggtitle("Standarized Residuals WLS Plot (Fitted) for registered bikers")
 ```
 
-![](Deliverable4_files/figure-gfm/unnamed-chunk-35-1.png)<!-- -->
+![](Deliverable4_files/figure-gfm/unnamed-chunk-36-1.png)<!-- -->
 
 ``` r
 p <- ggplot(data.frame(StanResWLS.casual), aes(sample = StanResWLS.casual)) +
@@ -512,7 +524,7 @@ ggtitle("QQ WLS Plot for casual bikers")
 p + stat_qq() + stat_qq_line()
 ```
 
-![](Deliverable4_files/figure-gfm/unnamed-chunk-36-1.png)<!-- -->
+![](Deliverable4_files/figure-gfm/unnamed-chunk-37-1.png)<!-- -->
 
 ``` r
 p <- ggplot(data.frame(StanResWLS.registered), aes(sample = StanResWLS.registered)) +
@@ -520,7 +532,7 @@ ggtitle("QQ WLS Plot for registered bikers")
 p + stat_qq() + stat_qq_line()
 ```
 
-![](Deliverable4_files/figure-gfm/unnamed-chunk-37-1.png)<!-- -->
+![](Deliverable4_files/figure-gfm/unnamed-chunk-38-1.png)<!-- -->
 
 Residual plots show less extreme outliers and more homogeneity but still
 exists heterogeneity and outliers. (Ask Julio)
@@ -599,7 +611,7 @@ geom_abline(intercept = 0, slope = 1) +
 ggtitle("Validation Casual vs Prediction")
 ```
 
-![](Deliverable4_files/figure-gfm/unnamed-chunk-45-1.png)<!-- -->
+![](Deliverable4_files/figure-gfm/unnamed-chunk-46-1.png)<!-- -->
 
 ``` r
 ggplot(validate_d, aes(x = registered, y = prediction_registered)) + geom_point() +
@@ -607,18 +619,18 @@ geom_abline(intercept = 0, slope = 1) +
 ggtitle("Validation Registered vs Prediction")
 ```
 
-![](Deliverable4_files/figure-gfm/unnamed-chunk-46-1.png)<!-- -->
+![](Deliverable4_files/figure-gfm/unnamed-chunk-47-1.png)<!-- -->
 
 ``` r
 ggplot(data = validate_d, aes(x = instant)) +
 geom_line(aes(y = casual, color = "GroundCO")) +
 geom_line(aes(y = prediction_casual, color="Prediction"), linetype="twodash") +
-scale_color_manual(name = element_blank(), labels = c("casual","Prediction"),
+scale_color_manual(name = element_blank(), labels = c("registered","Prediction"),
 values = c("darkred", "steelblue")) + labs(y = "") +
-ggtitle("Validation")
+ggtitle("Validation") 
 ```
 
-![](Deliverable4_files/figure-gfm/unnamed-chunk-47-1.png)<!-- -->
+![](Deliverable4_files/figure-gfm/unnamed-chunk-48-1.png)<!-- -->
 
 ``` r
 ggplot(data = validate_d, aes(x = instant)) +
@@ -629,4 +641,4 @@ values = c("darkred", "steelblue")) + labs(y = "") +
 ggtitle("Validation")
 ```
 
-![](Deliverable4_files/figure-gfm/unnamed-chunk-48-1.png)<!-- -->
+![](Deliverable4_files/figure-gfm/unnamed-chunk-49-1.png)<!-- -->

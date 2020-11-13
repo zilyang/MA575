@@ -608,3 +608,25 @@ ggtitle("Validation Registered vs Prediction")
 ```
 
 ![](Deliverable4_files/figure-gfm/unnamed-chunk-46-1.png)<!-- -->
+
+``` r
+ggplot(data = validate_d, aes(x = instant)) +
+geom_line(aes(y = casual, color = "GroundCO")) +
+geom_line(aes(y = prediction_casual, color="Prediction"), linetype="twodash") +
+scale_color_manual(name = element_blank(), labels = c("casual","Prediction"),
+values = c("darkred", "steelblue")) + labs(y = "") +
+ggtitle("Validation")
+```
+
+![](Deliverable4_files/figure-gfm/unnamed-chunk-47-1.png)<!-- -->
+
+``` r
+ggplot(data = validate_d, aes(x = instant)) +
+geom_line(aes(y = registered, color = "GroundCO")) +
+geom_line(aes(y = prediction_registered, color="Prediction"), linetype="twodash") +
+scale_color_manual(name = element_blank(), labels = c("casual","Prediction"),
+values = c("darkred", "steelblue")) + labs(y = "") +
+ggtitle("Validation")
+```
+
+![](Deliverable4_files/figure-gfm/unnamed-chunk-48-1.png)<!-- -->

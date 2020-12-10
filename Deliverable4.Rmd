@@ -1,5 +1,5 @@
 ---
-title: "Deliverable4"
+title: "Final"
 output: github_document
 ---
 
@@ -11,7 +11,7 @@ output: github_document
 
 # Backgrounds
 
-The data is a two-year historical log corresponding to years 2011 and 2012 from Capital Bikeshare system, Washington D.C. containing the following datas: 
+The data is a two-year historical in corresponding to years 2011 and 2012 from Capital Bikeshare system, Washington D.C. containing the following datas: 
 weathersit:
 1: Clear, Few clouds, Partly cloudy,
 2: Mist and Cloudy, Mist and Broken clouds, Mist and Few clouds, Mist
@@ -147,6 +147,19 @@ plot1<- ggplot(training_d,aes(x=season,y=registered))+geom_col()
 plot2<- ggplot(training_d,aes(x=season,y=casual ))+geom_col()
 plot_grid(plot1, plot2, labels = c("registered", "casual"))
 ```
+```{r}
+plot1<- ggplot(training.nworkingday,aes(x=season,y=registered))+geom_col()
+plot2<- ggplot(training.nworkingday,aes(x=season,y=casual ))+geom_col()
+plot_grid(plot1, plot2, labels = c("registered", "casual"))
+```
+
+```{r}
+plot1<- ggplot(training.workingday,aes(x=season,y=registered))+geom_col()
+plot2<- ggplot(training.workingday,aes(x=season,y=casual ))+geom_col()
+plot_grid(plot1, plot2, labels = c("registered", "casual"))
+```
+
+
 
 The graphs show that for both casual and registered bikers, there are the most rental counts during autumn season and the least during the spring season. However, for registered, there are about the same amount of count during summer and winter while for casual there are significantly less counts during winter than during summer. Therefore we think that we should fit different models for registered and casual.
 
@@ -155,6 +168,8 @@ ggplot(training_d,aes(x=season,y=actual.temp))+geom_boxplot()
 ```
 
 Temperature and seasons are strongly correlated. Spring has the lowest temperature while fall has the highest temperature.
+
+
 
 
 
@@ -180,6 +195,19 @@ There are more rental counts on not working days than on working days for casual
 ```{r}
 plot1 <- ggplot(data = training_d, aes(x=date_diff, y = registered)) +  geom_col(aes(fill = weathersit))
 plot2 <- ggplot(data = training_d, aes(x=date_diff, y = casual)) +  geom_col(aes(fill = weathersit))
+plot1
+plot2
+```
+```{r}
+plot1 <- ggplot(data = training.nworkingday, aes(x=date_diff, y = registered)) +  geom_col(aes(fill = season))
+plot2 <- ggplot(data = training.nworkingday, aes(x=date_diff, y = casual)) +  geom_col(aes(fill = season))
+plot1
+plot2
+```
+
+```{r}
+plot1 <- ggplot(data = training.workingday, aes(x=date_diff, y = registered)) +  geom_col(aes(fill = season))
+plot2 <- ggplot(data = training.workingday, aes(x=date_diff, y = casual)) +  geom_col(aes(fill = season))
 plot1
 plot2
 ```
@@ -243,8 +271,8 @@ ggplot(training_d, aes(x = actual.windspeed)) + geom_point(aes(y = registered,  
 # Humidity
 
 ```{r}
-m.lin_casual <- lm(training_d$casual ~ training_d$actual.hum)
-m.lin_registered <- lm(training_d$registered ~ training_d$actual.hum)
+m.lin_casual <- lm(training_d$casual ~ training_d$actual.hum) 
+m.lin_registered <- lm(training_d$registered ~ training_d$actual.hum )
 
 ggplot(training_d, aes(x = actual.hum)) + geom_point(aes(y = registered,  color = "registered"), shape = 1) + geom_point(aes(y = casual,  color = "casual"), shape = 1) +   geom_line(data = fortify(m.lin_casual), aes(x = training_d$actual.hum, y = .fitted), color = "red") + geom_line(data = fortify(m.lin_registered), aes(x = training_d$actual.hum, y = .fitted), color = "blue") + labs(title = "Scatter plot with fitted models", x = 'humidity', y = 'rental counts')
 ```
@@ -267,9 +295,9 @@ ggplot(training_d, aes(x = actual.hum)) + geom_point(aes(y = registered,  color 
 
 # Model
 ```{r}
-model.casual.workingday <- lm(casual ~actual.windspeed + actual.temp +I(actual.temp^2) + weathersit, data = training.workingday )
+model.casual.workingday <- lm(log(casual) ~ actual.temp + I(actual.temp^2) + weathersit +actual.windspeed + season, data = training.workingday )
 
-model.registered.workingday <- lm(registered ~   actual.temp + I(actual.temp^2)+actual.windspeed + weathersit + date_diff, data = training.workingday)
+model.registered.workingday <- lm(log(registered) ~   actual.temp + I(actual.temp^2) + weathersit + date_diff , data = training.workingday)
 ```
 
 
@@ -282,9 +310,9 @@ summary(model.registered.workingday)
 ```
 
 ```{r}
-model.casual.nworkingday <- lm(casual ~ actual.windspeed + actual.temp +I(actual.temp^2) + weathersit, data = training.nworkingday)
+model.casual.nworkingday <- lm(log(casual) ~ actual.temp +I(actual.temp^2) + weathersit + actual.windspeed + season, data = training.nworkingday)
 
-model.registered.nworkingday <- lm(registered ~ actual.temp +  actual.windspeed + weathersit, data = training.nworkingday)
+model.registered.nworkingday <- lm(log(registered) ~ actual.temp  + weathersit + actual.windspeed, data = training.nworkingday)
 ```
 
 ```{r}
@@ -310,7 +338,7 @@ StanRes.registered.nworkingday <- rstandard(model.registered.nworkingday)
 
 ```{r}
 ggplot() +
-geom_point(data=training.workingday, aes(x=casual, y=StanRes.casual.workingday, color = "MLS"), size = 1) +
+geom_point(data=training.workingday, aes(x=I(log(casual)), y=StanRes.casual.workingday, color = "MLS"), size = 1) +
 geom_hline(yintercept=2,color='blue') + geom_hline(yintercept=-2, color='blue') +
 scale_color_manual(name = element_blank(), labels = c("MLS"), values = c("blue")) +
 labs(y = "Standarized Residual") + ggtitle("Standarized Residuals MLS Plot for casual bikers on workingdays")
@@ -318,7 +346,7 @@ labs(y = "Standarized Residual") + ggtitle("Standarized Residuals MLS Plot for c
 
 ```{r}
 ggplot() +
-geom_point(data=training.workingday, aes(x=registered, y=StanRes.registered.workingday, color = "MLS"), size = 1) +
+geom_point(data=training.workingday, aes(x=I(log(registered)), y=StanRes.registered.workingday, color = "MLS"), size = 1) +
 geom_hline(yintercept=2,color='blue') + geom_hline(yintercept=-2, color='blue') +
 scale_color_manual(name = element_blank(), labels = c("MLS"), values = c("blue")) +
 labs(y = "Standarized Residual") + ggtitle("Standarized Residuals MLS Plot for registered bikers on workingdays")
@@ -345,15 +373,15 @@ ggtitle("Standarized Residuals MLS Plot (Fitted) for registered bikers on workin
 
 ```{r}
 ggplot() +
-geom_point(data=training.nworkingday, aes(x=casual, y=StanRes.casual.nworkingday, color = "MLS"), size = 1) +
+geom_point(data=training.nworkingday, aes(x=log(casual), y=StanRes.casual.nworkingday, color = "MLS"), size = 1) +
 geom_hline(yintercept=2,color='blue') + geom_hline(yintercept=-2, color='blue') +
 scale_color_manual(name = element_blank(), labels = c("MLS"), values = c("blue")) +
-labs(y = "Standarized Residual") + ggtitle("Standarized Residuals MLS Plot for casual bikers onnon-workingdays")
+labs(y = "Standarized Residual") + ggtitle("Standarized Residuals MLS Plot for casual bikers on non-workingdays")
 ```
 
 ```{r}
 ggplot() +
-geom_point(data=training.nworkingday, aes(x=registered, y=StanRes.registered.nworkingday, color = "MLS"), size = 1) +
+geom_point(data=training.nworkingday, aes(x=log(registered), y=StanRes.registered.nworkingday, color = "MLS"), size = 1) +
 geom_hline(yintercept=2,color='blue') + geom_hline(yintercept=-2, color='blue') +
 scale_color_manual(name = element_blank(), labels = c("MLS"), values = c("blue")) +
 labs(y = "Standarized Residual") + ggtitle("Standarized Residuals MLS Plot for registered bikers on non-workingdays")
@@ -374,7 +402,7 @@ Fitted_registered.nworkingday = fitted(model.registered.nworkingday)
 ggplot() +
 geom_hline(yintercept=2,color='blue') + geom_hline(yintercept=-2, color='blue') + geom_point(aes(x=Fitted_registered.nworkingday, y=StanRes.registered.nworkingday, color = "MLS"), size = 1) +
 labs(y = "Standarized Residual") + labs(x = "Fitted value") +
-ggtitle("Standarized Residuals WLS Plot (Fitted) for registered bikers on workingdays") 
+ggtitle("Standarized Residuals MLS Plot (Fitted) for registered bikers on workingdays") 
 ```
 
 
@@ -410,31 +438,32 @@ The QQ plots show a line that is roughly straight, therefore we conclude that th
 
 
 ```{r}
-p1 <- ggplot(data = data.frame(StanRes.casual.workingday), aes(x = StanRes.casual.workingday)) + geom_histogram(bins = 100)
 
-p1
+ggplot(data = data.frame(StanRes.casual.workingday), aes(x = StanRes.casual.workingday)) + geom_histogram(bins = 50)
+
+
 ```
 
 ```{r}
-p2 <- ggplot(data = data.frame(StanRes.casual.nworkingday), aes(x = StanRes.casual.nworkingday)) + geom_histogram(bins = 100)
+p2 <- ggplot(data = data.frame(StanRes.casual.nworkingday), aes(x = StanRes.casual.nworkingday)) + geom_histogram(bins = 50)
 
 p2
 ```
 
 ```{r}
-p3 <- ggplot(data = data.frame(StanRes.registered.workingday), aes(x = StanRes.registered.workingday)) + geom_histogram(bins = 100)
+p3 <- ggplot(data = data.frame(StanRes.registered.workingday), aes(x = StanRes.registered.workingday)) + geom_histogram(bins = 50)
 
 p3
 ```
 
 ```{r}
-p4 <- ggplot(data = data.frame(StanRes.registered.nworkingday), aes(x = StanRes.registered.nworkingday)) + geom_histogram(bins = 100)
+p4 <- ggplot(data = data.frame(StanRes.registered.nworkingday), aes(x = StanRes.registered.nworkingday)) + geom_histogram(bins = 50)
 
 p4
 ```
 
 ```{r}
-acf(StanRes.registered.nworkingday, main="ACF of standardised residuals")
+acf(StanRes.registered.nworkingday, main="ACF of standardised residuals", 200)
 ```
 
 ```{r}
@@ -443,24 +472,26 @@ acf(StanRes.registered.workingday, main="ACF of standardised residuals", 200)
 
 
 ```{r}
-acf(StanRes.casual.nworkingday, main="ACF of standardised residuals")
+acf(StanRes.casual.nworkingday, main="ACF of standardised residuals", 200)
 ```
 
 ```{r}
-acf(StanRes.casual.workingday, main="ACF of standardised residuals", 100)
+acf(StanRes.casual.workingday, main="ACF of standardised residuals", 200)
 ```
 Therefore using a gls With corrAR1 to correct correlations between y values in different periods. 
 
+
+
 # model 2
 ```{r}
-m.gls.casual.workingday <- gls(casual ~ actual.windspeed + actual.temp +I(actual.temp^2) + weathersit, data = training.workingday,
+m.gls.casual.workingday <- gls(log(casual) ~ actual.windspeed + actual.temp +I(actual.temp^2) + weathersit + season, data = training.workingday,
 correlation=corAR1(form=~instant), method="ML")
 
 summary(m.gls.casual.workingday)
 ```
 
 ```{r}
-m.gls.registered.workingday <- gls(registered ~  actual.temp + I(actual.temp^2)+actual.windspeed + weathersit+ date_diff, data = training.workingday,
+m.gls.registered.workingday <- gls(log(registered) ~  actual.temp + I(actual.temp^2)+actual.windspeed + weathersit+ date_diff + season, data = training.workingday,
 correlation=corAR1(form=~instant), method="ML")
 
 summary(m.gls.registered.workingday)
@@ -468,7 +499,7 @@ summary(m.gls.registered.workingday)
 ```
 
 ```{r}
-m.gls.casual.nworkingday <- gls(casual ~ actual.windspeed + actual.temp +I(actual.temp^2) + weathersit , data = training.nworkingday,
+m.gls.casual.nworkingday <- gls(log(casual) ~ actual.windspeed + actual.temp +I(actual.temp^2) + weathersit+season , data = training.nworkingday,
 correlation=corAR1(form=~instant), method="ML")
 
 summary(m.gls.casual.nworkingday)
@@ -476,7 +507,7 @@ summary(m.gls.casual.nworkingday)
 
 
 ```{r}
-m.gls.registered.nworkingday <- gls(registered ~ actual.temp +  actual.windspeed + weathersit, data = training.nworkingday, correlation=corAR1(form=~instant), method="ML")
+m.gls.registered.nworkingday <- gls(log(registered) ~ actual.temp +  actual.windspeed + weathersit , data = training.nworkingday, correlation=corAR1(form=~instant), method="ML")
 
 summary(m.gls.registered.nworkingday)
 ```
@@ -490,7 +521,7 @@ StanResGLS.registered.workingday <- residuals(m.gls.registered.workingday,"pears
 ```
 
 ```{r}
-ggplot(data=training.workingday, aes(x=casual)) +
+ggplot(data=training.workingday, aes(x=log(casual))) +
 geom_point(aes(y=StanRes.casual.workingday, color = "MLS"), size = 1) + 
 geom_point(aes(y=StanResGLS.casual.workingday, color = "GLS"), size = 1) + 
 geom_hline(yintercept=2,color='blue') + geom_hline(yintercept=-2, color='blue') +
@@ -499,7 +530,7 @@ labs(y = "Standarized Residual") + ggtitle("Standarized Residuals MLS Plot for c
 ```
 
 ```{r}
-ggplot(data=training.workingday, aes(x=registered)) +
+ggplot(data=training.workingday, aes(x=log(registered))) +
 geom_point(aes(y=StanRes.registered.workingday, color = "MLS"), size = 1) +
   geom_point(aes(y=StanResGLS.registered.workingday, color = "GLS"), size = 1) +
 geom_hline(yintercept=2,color='blue') + geom_hline(yintercept=-2, color='blue') +
@@ -529,7 +560,7 @@ ggtitle("Standarized Residuals Plot (Fitted) for registered bikers on workingday
 
 
 ```{r}
-ggplot(data=training.nworkingday, aes(x=casual)) +
+ggplot(data=training.nworkingday, aes(x=log(casual))) +
 geom_point(aes(y=StanRes.casual.nworkingday, color = "MLS"), size = 1) +
 geom_point(aes(y=StanResGLS.casual.nworkingday, color = "GLS"), size = 1) +
 geom_hline(yintercept=2,color='blue') + geom_hline(yintercept=-2, color='blue') +
@@ -537,7 +568,7 @@ labs(y = "Standarized Residual") + ggtitle("Standarized Residuals MLS Plot for c
 ```
 
 ```{r}
-ggplot(data=training.nworkingday, aes(x=registered)) +
+ggplot(data=training.nworkingday, aes(x=log(registered))) +
 geom_point(aes(y=StanRes.registered.nworkingday, color = "MLS"), size = 1) +
 geom_point(aes(y=StanResGLS.registered.nworkingday, color = "GLS"), size = 1) +
 geom_hline(yintercept=2,color='blue') + geom_hline(yintercept=-2, color='blue') +
@@ -551,7 +582,7 @@ ggplot() +
 geom_hline(yintercept=2,color='blue') + geom_hline(yintercept=-2, color='blue') + geom_point(aes(x=Fitted_casual.nworkingday, y=StanRes.casual.nworkingday, color = "MLS"), size = 1) +
 geom_point(aes(x=FittedGLS_casual.nworkingday, y=StanResGLS.casual.nworkingday, color = "GLS"), size = 1) +
 labs(y = "Standarized Residual") + labs(x = "Fitted value") +
-ggtitle("Standarized Residuals WLS Plot (Fitted) for casual bikers on non-workingdays") 
+ggtitle("Standarized Residuals Plot (Fitted) for casual bikers on non-workingdays") 
 ```
 
 ```{r}
@@ -561,7 +592,7 @@ ggplot() +
 geom_hline(yintercept=2,color='blue') + geom_hline(yintercept=-2, color='blue') + geom_point(aes(x=Fitted_registered.nworkingday, y=StanRes.registered.nworkingday, color = "MLS"), size = 1) +
 geom_point(aes(x=FittedGLS_registered.nworkingday, y=StanResGLS.registered.nworkingday, color = "GLS"), size = 1) +
 labs(y = "Standarized Residual") + labs(x = "Fitted value") +
-ggtitle("Standarized Residuals WLS Plot (Fitted) for registered bikers on workingdays") 
+ggtitle("Standarized Residuals Plot (Fitted) for registered bikers on workingdays") 
 ```
 
 
@@ -590,25 +621,25 @@ p + stat_qq() + stat_qq_line()
 ```
 
 ```{r}
-p1 <- ggplot(data = data.frame(StanResGLS.casual.workingday), aes(x = StanResGLS.casual.workingday)) + geom_histogram(bins = 100)
+p1 <- ggplot(data = data.frame(StanResGLS.casual.workingday), aes(x = StanResGLS.casual.workingday)) + geom_histogram(bins = 50)
 
 p1
 ```
 
 ```{r}
-p2 <- ggplot(data = data.frame(StanResGLS.casual.nworkingday), aes(x = StanResGLS.casual.nworkingday)) + geom_histogram(bins = 100)
+p2 <- ggplot(data = data.frame(StanResGLS.casual.nworkingday), aes(x = StanResGLS.casual.nworkingday)) + geom_histogram(bins = 50)
 
 p2
 ```
 
 ```{r}
-p3 <- ggplot(data = data.frame(StanResGLS.registered.workingday), aes(x = StanResGLS.registered.workingday)) + geom_histogram(bins = 100)
+p3 <- ggplot(data = data.frame(StanResGLS.registered.workingday), aes(x = StanResGLS.registered.workingday)) + geom_histogram(bins = 50)
 
 p3
 ```
 
 ```{r}
-p4 <- ggplot(data = data.frame(StanResGLS.registered.nworkingday), aes(x = StanResGLS.registered.nworkingday)) + geom_histogram(bins = 100)
+p4 <- ggplot(data = data.frame(StanResGLS.registered.nworkingday), aes(x = StanResGLS.registered.nworkingday)) + geom_histogram(bins = 50)
 
 p4
 ```
@@ -621,15 +652,19 @@ p4
 ```
 
 ```{r}
-p.casual.workingday <- predict(m.gls.casual.workingday, validate.workingday)
-error.casual.workingday <- (p.casual.workingday- validate.workingday$casual)
-RMSE_validation.caual.workingday <- sqrt(mean(error.casual.workingday^2))
-RMSEGLS.casual.workingday <- sqrt(mean(resid(m.gls.casual.workingday)^2))
+p.casual.workingday <- exp(predict(model.casual.workingday,validate.workingday))
+error.casual.workingday <- ((p.casual.workingday)- validate.workingday$casual)
+RMSE_validation.caual.workingday <- log(mean(error.casual.workingday^2))
+pt.casual.workingday <- exp(predict(model.casual.workingday,training.workingday))
+errort.casual.workingday <- ((pt.casual.workingday)- training.workingday$casual)
+RMSEGLS.casual.workingday <- log(mean(errort.casual.workingday)^2)
 
-p.casual.nworkingday <- predict(m.gls.casual.nworkingday, validate.nworkingday)
+p.casual.nworkingday <- exp(predict(model.casual.nworkingday, validate.nworkingday))
 error.casual.nworkingday <- (p.casual.nworkingday- validate.nworkingday$casual)
-RMSE_validation.caual.nworkingday <- sqrt(mean(error.casual.nworkingday^2))
-RMSEGLS.casual.nworkingday <- sqrt(mean(resid(m.gls.casual.nworkingday)^2))
+RMSE_validation.caual.nworkingday <- log(mean(error.casual.nworkingday^2))
+pt.casual.nworkingday <- exp(predict(model.casual.nworkingday, training.nworkingday))
+errort.casual.nworkingday <- (pt.casual.nworkingday- training.nworkingday$casual)
+RMSEGLS.casual.nworkingday <- log(mean(errort.casual.nworkingday)^2)
 
 ```
 
@@ -645,15 +680,20 @@ RMSEGLS.casual.nworkingday
 ```
 
 ```{r}
-p.registered.workingday <- predict(m.gls.registered.workingday, validate.workingday)
-error.registered.workingday <- (p.registered.workingday- validate.workingday$registered)
-RMSE_validation.registered.workingday <- sqrt(mean(error.registered.workingday^2))
-RMSEGLS.registered.workingday <- sqrt(mean(resid(m.gls.registered.workingday)^2))
+p.registered.workingday <- exp(predict(model.registered.workingday,validate.workingday))
+error.registered.workingday <- ((p.registered.workingday)- validate.workingday$registered)
+RMSE_validation.registered.workingday <- log(mean(error.registered.workingday^2))
+pt.registered.workingday <- exp(predict(model.registered.workingday,training.workingday))
+errort.registered.workingday <- ((pt.registered.workingday)- training.workingday$registered)
+RMSEGLS.registered.workingday <- log(mean(errort.registered.workingday)^2)
 
-p.registered.nworkingday <- predict(m.gls.registered.nworkingday,  validate.nworkingday)
+p.registered.nworkingday <- exp(predict(m.gls.registered.nworkingday, validate.nworkingday))
 error.registered.nworkingday <- (p.registered.nworkingday- validate.nworkingday$registered)
-RMSE_validation.registered.nworkingday <- sqrt(mean(error.registered.nworkingday^2))
-RMSEGLS.registered.nworkingday <- sqrt(mean(resid(m.gls.registered.nworkingday)^2))
+RMSE_validation.registered.nworkingday <- log(mean(error.registered.nworkingday^2))
+pt.registered.nworkingday <- exp(predict(model.registered.nworkingday, training.nworkingday))
+errort.registered.nworkingday <- (pt.registered.nworkingday- training.nworkingday$registered)
+RMSEGLS.registered.nworkingday <- log(mean(errort.registered.nworkingday)^2)
+
 
 ```
 
@@ -684,9 +724,9 @@ mean((error.registered.nworkingday)^2) / mean((validate.nworkingday$registered)^
 Our model predicts the bike data in 2012 with mean error of 23 percent and 16 percent within the true value of casual and registered counts respectively. However, our model have twice as large of square root of mean square error with the validation data set than with the training data set. 
 
 ```{r}
-validate.workingday <- validate.workingday %>% mutate(GLSprediction_registered.workingday = predict(m.gls.registered.workingday, validate.workingday)) %>% mutate(GLSprediction_casual.workingday = predict(m.gls.casual.workingday, validate.workingday))
+validate.workingday <- validate.workingday %>% mutate(GLSprediction_registered.workingday =  exp(predict(model.registered.workingday, validate.workingday))) %>% mutate(GLSprediction_casual.workingday = exp(predict(model.casual.workingday, validate.workingday)))
 
-validate.nworkingday <- validate.nworkingday %>% mutate(GLSprediction_registered.nworkingday = predict(m.gls.registered.nworkingday, validate.nworkingday)) %>% mutate(GLSprediction_casual.nworkingday = predict(m.gls.casual.nworkingday, validate.nworkingday))
+validate.nworkingday <- validate.nworkingday %>% mutate(GLSprediction_registered.nworkingday = exp(predict(model.registered.nworkingday, validate.nworkingday))) %>% mutate(GLSprediction_casual.nworkingday = exp(predict(model.casual.nworkingday, validate.nworkingday)))
 ```
 
 
@@ -699,7 +739,7 @@ ggtitle("Validation Casual vs Prediction on workingdays")
 ```{r}
 ggplot(validate.nworkingday, aes(x = casual, y = GLSprediction_casual.nworkingday)) + geom_point() +
 geom_abline(intercept = 0, slope = 1) +
-ggtitle("Validation Casual vs Prediction onnon-workingdays")
+ggtitle("Validation Casual vs Prediction on non-workingdays")
 ```
 
 ```{r}
@@ -767,7 +807,7 @@ GLStotal<- rbind(temp1, temp2)
 ```{r}
 ggplot(data = GLStotal, aes(x = instant)) +
 geom_line(aes(y = cnt, color = "GroundTruth")) +
-geom_line(aes(y = GLSpred.total, color="Prediction")) +
+geom_line(aes(y = GLSpred.total, color="Prediction"), linetype="twodash") +
 scale_color_manual(name = element_blank(), labels = c("GroundTruth","Prediction"),
 values = c("darkred", "steelblue")) + labs(y = "") +
 ggtitle("Validation of total rental counts")

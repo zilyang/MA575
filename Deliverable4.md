@@ -1092,14 +1092,14 @@ error.casual.workingday <- ((p.casual.workingday)- validate.workingday$casual)
 RMSE_validation.caual.workingday <- log(mean(error.casual.workingday^2))
 pt.casual.workingday <- exp(predict(model.casual.workingday,training.workingday))
 errort.casual.workingday <- ((pt.casual.workingday)- training.workingday$casual)
-RMSEGLS.casual.workingday <- log(mean(errort.casual.workingday)^2)
+RMSE.casual.workingday <- log(mean(errort.casual.workingday)^2)
 
 p.casual.nworkingday <- exp(predict(model.casual.nworkingday, validate.nworkingday))
 error.casual.nworkingday <- (p.casual.nworkingday- validate.nworkingday$casual)
 RMSE_validation.caual.nworkingday <- log(mean(error.casual.nworkingday^2))
 pt.casual.nworkingday <- exp(predict(model.casual.nworkingday, training.nworkingday))
 errort.casual.nworkingday <- (pt.casual.nworkingday- training.nworkingday$casual)
-RMSEGLS.casual.nworkingday <- log(mean(errort.casual.nworkingday)^2)
+RMSE.casual.nworkingday <- log(mean(errort.casual.nworkingday)^2)
 ```
 
 Square root mean square error for validation data set
@@ -1119,13 +1119,13 @@ RMSE_validation.caual.nworkingday
 square root mean square error for training data set
 
 ``` r
-RMSEGLS.casual.workingday
+RMSE.casual.workingday
 ```
 
     ## [1] 5.796357
 
 ``` r
-RMSEGLS.casual.nworkingday
+RMSE.casual.nworkingday
 ```
 
     ## [1] 7.71068
@@ -1136,14 +1136,14 @@ error.registered.workingday <- ((p.registered.workingday)- validate.workingday$r
 RMSE_validation.registered.workingday <- log(mean(error.registered.workingday^2))
 pt.registered.workingday <- exp(predict(model.registered.workingday,training.workingday))
 errort.registered.workingday <- ((pt.registered.workingday)- training.workingday$registered)
-RMSEGLS.registered.workingday <- log(mean(errort.registered.workingday)^2)
+RMSE.registered.workingday <- log(mean(errort.registered.workingday)^2)
 
 p.registered.nworkingday <- exp(predict(m.gls.registered.nworkingday, validate.nworkingday))
 error.registered.nworkingday <- (p.registered.nworkingday- validate.nworkingday$registered)
 RMSE_validation.registered.nworkingday <- log(mean(error.registered.nworkingday^2))
 pt.registered.nworkingday <- exp(predict(model.registered.nworkingday, training.nworkingday))
 errort.registered.nworkingday <- (pt.registered.nworkingday- training.nworkingday$registered)
-RMSEGLS.registered.nworkingday <- log(mean(errort.registered.nworkingday)^2)
+RMSE.registered.nworkingday <- log(mean(errort.registered.nworkingday)^2)
 ```
 
 Square root mean square error for validation data set
@@ -1163,13 +1163,13 @@ RMSE_validation.registered.nworkingday
 square root mean square error for training data set
 
 ``` r
-RMSEGLS.registered.workingday
+RMSE.registered.workingday
 ```
 
     ## [1] 7.717053
 
 ``` r
-RMSEGLS.registered.nworkingday
+RMSE.registered.nworkingday
 ```
 
     ## [1] 9.014139
@@ -1207,39 +1207,43 @@ mean square error with the validation data set than with the training
 data set.
 
 ``` r
-validate.workingday <- validate.workingday %>% mutate(GLSprediction_registered.workingday =  exp(predict(model.registered.workingday, validate.workingday))) %>% mutate(GLSprediction_casual.workingday = exp(predict(model.casual.workingday, validate.workingday)))
+validate.workingday <- validate.workingday %>% mutate(prediction_registered.workingday =  exp(predict(model.registered.workingday, validate.workingday))) %>% mutate(prediction_casual.workingday = exp(predict(model.casual.workingday, validate.workingday)))
 
-validate.nworkingday <- validate.nworkingday %>% mutate(GLSprediction_registered.nworkingday = exp(predict(model.registered.nworkingday, validate.nworkingday))) %>% mutate(GLSprediction_casual.nworkingday = exp(predict(model.casual.nworkingday, validate.nworkingday)))
+validate.nworkingday <- validate.nworkingday %>% mutate(prediction_registered.nworkingday = exp(predict(model.registered.nworkingday, validate.nworkingday))) %>% mutate(prediction_casual.nworkingday = exp(predict(model.casual.nworkingday, validate.nworkingday)))
 ```
 
 ``` r
-ggplot(validate.workingday, aes(x = casual, y = GLSprediction_casual.workingday)) + geom_point() +
+ggplot(validate.workingday, aes(x = casual, y = prediction_casual.workingday)) + geom_point() +
 geom_abline(intercept = 0, slope = 1) +
-ggtitle("Validation Casual vs Prediction on workingdays")
+ggtitle("Validation Casual vs Prediction on workingdays") +
+ylab("prediction")
 ```
 
 ![](Deliverable4_files/figure-gfm/unnamed-chunk-76-1.png)<!-- -->
 
 ``` r
-ggplot(validate.nworkingday, aes(x = casual, y = GLSprediction_casual.nworkingday)) + geom_point() +
+ggplot(validate.nworkingday, aes(x = casual, y = prediction_casual.nworkingday)) + geom_point() +
 geom_abline(intercept = 0, slope = 1) +
-ggtitle("Validation Casual vs Prediction on non-workingdays")
+ggtitle("Validation Casual vs Prediction on non-workingdays")+
+ylab("prediction")
 ```
 
 ![](Deliverable4_files/figure-gfm/unnamed-chunk-77-1.png)<!-- -->
 
 ``` r
-ggplot(validate.workingday, aes(x = registered, y = GLSprediction_registered.workingday)) + geom_point() +
+ggplot(validate.workingday, aes(x = registered, y = prediction_registered.workingday)) + geom_point() +
 geom_abline(intercept = 0, slope = 1) +
-ggtitle("Validation Registered vs Prediction on workingdays")
+ggtitle("Validation Registered vs Prediction on workingdays")+
+ylab("prediction")
 ```
 
 ![](Deliverable4_files/figure-gfm/unnamed-chunk-78-1.png)<!-- -->
 
 ``` r
-ggplot(validate.nworkingday, aes(x = registered, y = GLSprediction_registered.nworkingday)) + geom_point() +
+ggplot(validate.nworkingday, aes(x = registered, y = prediction_registered.nworkingday)) + geom_point() +
 geom_abline(intercept = 0, slope = 1) +
-ggtitle("Validation Registered vs Prediction on non-workingdays")
+ggtitle("Validation Registered vs Prediction on non-workingdays")+
+ylab("prediction")
 ```
 
 ![](Deliverable4_files/figure-gfm/unnamed-chunk-79-1.png)<!-- -->
@@ -1247,7 +1251,7 @@ ggtitle("Validation Registered vs Prediction on non-workingdays")
 ``` r
 ggplot(data = validate.workingday, aes(x = instant)) +
 geom_line(aes(y = casual, color = "casual")) +
-geom_line(aes(y = GLSprediction_casual.workingday, color="Prediction"), linetype="twodash") +
+geom_line(aes(y = prediction_casual.workingday, color="Prediction"), linetype="twodash") +
 scale_color_manual(name = element_blank(), labels = c("casual","Prediction"),
 values = c("darkred", "steelblue")) + labs(y = "") +
 ggtitle("Validation of casual bikers on workingdays") 
@@ -1258,7 +1262,7 @@ ggtitle("Validation of casual bikers on workingdays")
 ``` r
 ggplot(data = validate.nworkingday, aes(x = instant)) +
 geom_line(aes(y = casual, color = "casual")) +
-geom_line(aes(y = GLSprediction_casual.nworkingday, color="Prediction"), linetype="twodash") +
+geom_line(aes(y = prediction_casual.nworkingday, color="Prediction"), linetype="twodash") +
 scale_color_manual(name = element_blank(), labels = c("casual","Prediction"),
 values = c("darkred", "steelblue")) + labs(y = "") +
 ggtitle("Validation of casual bikers on non-workingdays") 
@@ -1269,7 +1273,7 @@ ggtitle("Validation of casual bikers on non-workingdays")
 ``` r
 ggplot(data = validate.workingday, aes(x = instant)) +
 geom_line(aes(y = registered, color = "groundtruth")) +
-geom_line(aes(y = GLSprediction_registered.workingday, color="Prediction"), linetype="twodash") +
+geom_line(aes(y = prediction_registered.workingday, color="Prediction"), linetype="twodash") +
 scale_color_manual(name = element_blank(), labels = c("groundtruth","Prediction"),
 values = c("darkred", "steelblue")) + labs(y = "") +
 ggtitle("Validation of registered bikers on workingdays")
@@ -1280,7 +1284,7 @@ ggtitle("Validation of registered bikers on workingdays")
 ``` r
 ggplot(data = validate.nworkingday, aes(x = instant)) +
 geom_line(aes(y = registered, color = "groundtruth")) +
-geom_line(aes(y = GLSprediction_registered.nworkingday, color="Prediction"), linetype="twodash") +
+geom_line(aes(y = prediction_registered.nworkingday, color="Prediction"), linetype="twodash") +
 scale_color_manual(name = element_blank(), labels = c("groundtruth","Prediction"),
 values = c("darkred", "steelblue")) + labs(y = "") +
 ggtitle("Validation of registered bikers on non-workingdays")
@@ -1289,22 +1293,29 @@ ggtitle("Validation of registered bikers on non-workingdays")
 ![](Deliverable4_files/figure-gfm/unnamed-chunk-83-1.png)<!-- -->
 
 ``` r
-validate.nworkingday<- validate.nworkingday %>% mutate(GLSpred.total = GLSprediction_registered.nworkingday+GLSprediction_casual.nworkingday)
+validate.nworkingday<- validate.nworkingday %>% mutate(pred.total = prediction_registered.nworkingday+prediction_casual.nworkingday)
 
-validate.workingday<- validate.workingday %>% mutate(GLSpred.total = GLSprediction_registered.workingday+GLSprediction_casual.workingday)
+validate.workingday<- validate.workingday %>% mutate(pred.total = prediction_registered.workingday+prediction_casual.workingday)
 
-temp1<- subset(validate.nworkingday, select = c(instant,GLSpred.total, cnt))
-temp2<- subset(validate.workingday, select = c(instant,GLSpred.total, cnt))
-GLStotal<- rbind(temp1, temp2)
+temp1<- subset(validate.nworkingday, select = c(instant,pred.total, cnt))
+temp2<- subset(validate.workingday, select = c(instant,pred.total, cnt))
+total<- rbind(temp1, temp2)
 ```
 
 ``` r
-ggplot(data = GLStotal, aes(x = instant)) +
+ggplot(data = total, aes(x = instant)) +
 geom_line(aes(y = cnt, color = "GroundTruth")) +
-geom_line(aes(y = GLSpred.total, color="Prediction"), linetype="twodash") +
+geom_line(aes(y = pred.total, color="Prediction"), linetype="twodash") +
 scale_color_manual(name = element_blank(), labels = c("GroundTruth","Prediction"),
 values = c("darkred", "steelblue")) + labs(y = "") +
 ggtitle("Validation of total rental counts")
 ```
 
 ![](Deliverable4_files/figure-gfm/unnamed-chunk-85-1.png)<!-- -->
+
+``` r
+error.casual.nworkingday <- (total$pred.total- total$cnt)
+mean((error.casual.workingday)^2) / mean((validate.workingday$casual)^2)
+```
+
+    ## [1] 0.175503

@@ -1,5 +1,5 @@
 ---
-title: "Deliverable 4"
+title: "Deliverable4"
 output: github_document
 ---
 
@@ -59,6 +59,7 @@ library(caret)
 library(kableExtra)
 library(nlme)
 library(cowplot)
+library(knitr)
 ```
 
 ```{r read file}
@@ -676,6 +677,8 @@ mean((error.casual.workingday)^2) / mean((validate.workingday$casual)^2)
 mean((error.casual.nworkingday)^2) / mean((validate.nworkingday$casual)^2)
 mean((error.registered.workingday)^2) / mean((validate.workingday$registered)^2)
 mean((error.registered.nworkingday)^2) / mean((validate.nworkingday$registered)^2)
+
+
 ```
 
 Our model predicts the bike data in 2012 with mean error of 23 percent and 16 percent within the true value of casual and registered counts respectively. However, our model have twice as large of square root of mean square error with the validation data set than with the training data set. 

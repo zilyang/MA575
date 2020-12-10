@@ -27,8 +27,6 @@ bikedata <-
   mutate(actual.atemp = atemp*50) %>%
   mutate(actual.windspeed = windspeed*67) %>%
   mutate(actual.hum = hum*100)
-  
-
 ```
 
 
@@ -176,9 +174,9 @@ summary(m.mls_registered)
 ```
 
 ```{r}
-data <- data.frame(bikedata$casual, bikedata$holiday, bikedata$weathersit, bikedata$workingday, bikedata$actual.hum, bikedata$actual.temp, bikedata$actual.windspeed)
+data <- data.frame(training_d$casual, training_d$holiday, bikedata$weathersit, bikedata$workingday, bikedata$actual.hum, bikedata$actual.temp, bikedata$actual.windspeed)
 
-data = data%>% rename( casual = bikedata.casual, holiday = bikedata.holiday,  weathersit = bikedata.weathersit,  workingday = bikedata.workingday, humidity= bikedata.actual.hum,  temperature= bikedata.actual.temp, windspeed = bikedata.actual.windspeed)
+data = data%>% rename( casual = training_d.casual, holiday = training_d.holiday,  weathersit = training_d.weathersit,  workingday = training_d.workingday, humidity= training_d.actual.hum,  temperature= training_d.actual.temp, windspeed = training_d.actual.windspeed, feeltemp = training_d.actual.atemp)
 
 ggpairs(data, lower = list(continuous = wrap("points", alpha = 0.3, size= 0.7)))
 ```
@@ -220,6 +218,8 @@ summary(m.mls_registered_revised)
 
 ```{r}
 StanResMLS_registered_revised <- rstandard(m.mls_registered_revised)
-ggplot(bikedata, aes(x = casual, y=StanResMLS_registered_revised)) + geom_point(shape = 1) + geom_hline(yintercept = -2) + geom_hline(yintercept = 2)+ ggtitle("Standarized Residuals")
+ggplot(bikedata, aes(x = registered, y=StanResMLS_registered_revised)) + geom_point(shape = 1) + geom_hline(yintercept = -2) + geom_hline(yintercept = 2)+ ggtitle("Standarized Residuals")
 ```
+
+
 

@@ -555,7 +555,7 @@ summary(m.mls_registered_revised)
 
 ``` r
 StanResMLS_registered_revised <- rstandard(m.mls_registered_revised)
-ggplot(bikedata, aes(x = casual, y=StanResMLS_registered_revised)) + geom_point(shape = 1) + geom_hline(yintercept = -2) + geom_hline(yintercept = 2)+ ggtitle("Standarized Residuals")
+ggplot(bikedata, aes(x = registered, y=StanResMLS_registered_revised)) + geom_point(shape = 1) + geom_hline(yintercept = -2) + geom_hline(yintercept = 2)+ ggtitle("Standarized Residuals")
 ```
 
 ![](Bike-rentals_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
